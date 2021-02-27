@@ -6,13 +6,15 @@ import Login from "./components/Login";
 import styled from "styled-components";
 import Header from "./components/Header";
 import SideBar from "./components/SideBar";
+import Select from "./components/Select";
 import db from "./firebase";
+import {auth, provider} from "./firebase";
 
 function App() {
 
   const [rooms,setRooms] = useState([]);
 
-  const [user,setUser] = useState();
+  const [user,setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
 
 const getChannels = () =>{
@@ -23,6 +25,17 @@ const getChannels = () =>{
     }))
   })
 }
+
+const signOut = () => {
+  auth.signOut().then(()=> {
+    localStorage.removeItem('user');
+    setUser(null);
+
+  })
+
+
+}
+
 
 
 useEffect(() =>{
@@ -37,19 +50,19 @@ useEffect(() =>{
       <Router>
         {
           !user ?
-          <Login />
+          <Login  setUser= {setUser}/>
 
         :
         <Container>
-          <Header />
+          <Header user = {user} signOut = {signOut}/>
           <Main>
             <SideBar rooms = {rooms} />
             <Switch>
-              <Route path = "/room">
-                <Chat />
+              <Route path = "/room/:channelId">
+                <Chat  user = {user}/>
               </Route>
               <Route path = "/">
-                <Login />
+                <Select />
               </Route>
             </Switch>
           </Main>
